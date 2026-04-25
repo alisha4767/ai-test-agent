@@ -1,67 +1,104 @@
 # AI Test Agent – Founding Engineer Assignment
 
 ## 🚀 Overview
-This project converts natural language test descriptions into structured test steps (Action + Assertion objects).
+This project converts natural language test descriptions into structured test steps and executes them in a real browser.
 
-### Example
-
-**Input:**
-Go to linkedin.com, login with email and password, verify error message
-
-
-**Output:**
-- Open website  
-- Enter credentials  
-- Click login  
-- Verify error message  
+The agent:
+1. Parses user input
+2. Generates test steps (Action + Assertion objects)
+3. Executes them in a browser using Playwright
+4. Validates success/failure based on assertions
 
 ---
 
-## 🧠 Approach
+## 🧠 Architecture
 
-### 1. Smart Logic Layer (No API required)
-- Detects website (LinkedIn)
-- Extracts email & password using regex
-- Generates dynamic steps
+### 🔹 1. Input Processing
+- Extracts URL, email, and password using regex
+- No hardcoding of specific websites
 
-### 2. Extensible Design
-- LLM-ready architecture (can plug API anytime)
-- Clean separation of logic
+### 🔹 2. Test Step Generation
+- Converts natural language into structured steps:
+  - `open`
+  - `type`
+  - `click`
+  - `assertion`
+
+### 🔹 3. Execution Layer
+- Uses Playwright to control a real browser
+- Performs actions sequentially
+- Stops execution on failure
+
+### 🔹 4. Validation
+- Assertions verify expected outcomes
+- If any step fails → test fails
 
 ---
 
 ## 📥 Input Example
-Go to linkedin.com, login with email txe@gmail.com
- and password 1h21j21j and verify invalid credentials message
+Go to linkedin.com login with email test@gmail.com
+ and password 123456 and verify invalid credentials
+
  
 ---
 
-## 📤 Output Example
+## 📤 Output (Generated Steps)
 
 ```json
 [
-  { "action": "open", "url": "https://www.linkedin.com" },
-  { "action": "type", "target": "//*[@id='username']", "value": "txe@gmail.com" },
-  { "action": "type", "target": "//*[@id='password']", "value": "1h21j21j" },
-  { "action": "click", "target": "//button[@type='submit']" },
-  { "action": "assertion", "target": "//*[@id='error-for-password']", "contains": "invalid credentials" }
+  { "action": "open", "url": "https://linkedin.com" },
+  { "action": "type", "target": "input[type='email']", "value": "test@gmail.com" },
+  { "action": "type", "target": "input[type='password']", "value": "123456" },
+  { "action": "click", "target": "button[type='submit']" },
+  { "action": "assertion", "target": "body", "contains": "invalid" }
 ]
+
+Execution Flow
+Run the script
+Enter test description
+Agent generates steps
+Browser opens automatically
+Actions are executed
+Result is displayed:
+✅ Test Passed
+or
+❌ Test Failed
+
 How to Run
 python main.py
 
 Features
 Natural language → structured test steps
-Dynamic credential extraction
-Website detection
-Reasoning layer (prints agent understanding)
+Dynamic data extraction (URL, credentials)
+Generic (no hardcoded website logic)
+Real browser execution using Playwright
+Assertion-based validation
+Reasoning layer (prints extracted data)
 
 Limitations
-LLM integration not active (requires API billing)
-Currently supports LinkedIn only
-Selectors are predefined
+Uses generic selectors (may fail on some websites)
+No Chrome Extension integration (simulated via Playwright)
+LLM not used (rule-based logic instead)
 
 Future Improvements
-Add LLM integration
-Support multiple websites
-Add browser automation using Playwright
-Use HTML parsing for dynamic selectors
+Integrate LLM for smarter step generation
+Add Chrome Extension for screenshot + HTML capture
+Improve selector detection using DOM parsing
+Support more complex test scenarios
+Add retry and self-healing logic
+
+Architecture Alignment with Assignment
+Backend logic implemented in Python
+Browser actions executed via Playwright
+Failure handling implemented
+Designed to integrate with:
+Chrome Extension (future)
+LLM backend (future)
+
+Note
+
+Playwright browser binaries could not be installed due to system security restrictions (Device Guard).
+
+Used existing Chrome browser via:
+
+channel="chrome"
